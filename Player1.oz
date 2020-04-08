@@ -20,14 +20,16 @@ in
 
 %%%%%%%%%%%%% functions %%%%%%%%%%%%%%%%%
 
-proc {InitPosition ID Position} {System.show 'InitPosition called'} end 
+proc {InitPosition ID Position} 
+    ID=id(id:MyID color:MyColor name:'player1')
+    Position=pt(x:1 y:3)
+{System.show 'InitPosition called'} end 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     proc{TreatStream Stream} % as as many parameters as you want
        case Stream of nil then skip
-       []initPosition(ID Position) then {InitPosition ID Position}
-       else skip
+       [] initPosition(ID Position)|S then {InitPosition ID Position}
        end 
     end
 
@@ -36,9 +38,11 @@ proc {InitPosition ID Position} {System.show 'InitPosition called'} end
         Port
     in
         {NewPort Stream Port}
-        %MyID=ID
-        {System.show 'creation of a player'}
-        %{System.show MyID}
+        MyID=ID
+        MyColor=Color
+        {System.show 'creation of player1'}
+        {System.show MyID}
+        {System.show MyColor}
         thread
             {TreatStream Stream}
         end

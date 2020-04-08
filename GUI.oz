@@ -2,6 +2,7 @@ functor
 import
 	QTk at 'x-oz://system/wp/QTk.ozf'
 	Input
+	System
 export
 	portWindow:StartWindow
 define
@@ -258,6 +259,8 @@ in
 			NewGrid = {BuildWindow}
 			{TreatStream T NewGrid State}
 		[] initPlayer(ID Position)|T then NewState in
+			{System.show ID }
+			{System.show Position}
 			NewState = {DrawSubmarine Grid ID Position}
 			{TreatStream T Grid NewState|State}
 		[] movePlayer(ID Position)|T then
