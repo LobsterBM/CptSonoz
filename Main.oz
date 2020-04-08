@@ -18,6 +18,6 @@ in
     {Send GuiPort buildWindow}
     
     %création du port pour les joueurs
-    PlayerList={PlayerManager.playerGenerator Input.colors.1 1}
+    PlayerList={PlayerManager.playerGenerator player Input.colors.1 1}
 
 end
