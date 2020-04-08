@@ -1,14 +1,15 @@
 functor
 import
     Input
+    System
 export
     portPlayer:StartPlayer
 define
     StartPlayer
     TreatStream
 in
-    proc{TreatStream Stream <p1> <p2> ...} % as as many parameters as you want
-        % ...
+    proc{TreatStream Stream} % as as many parameters as you want
+       {System.show 'yolo'}
     end
     fun{StartPlayer Color ID}
         Stream
@@ -16,7 +17,7 @@ in
     in
         {NewPort Stream Port}
         thread
-            {TreatStream Stream <p1> <p2> ...}
+            {TreatStream Stream}
         end
         Port
     end
