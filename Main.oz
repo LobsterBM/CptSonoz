@@ -10,6 +10,7 @@ define
     InitPlayers
     InitPlayerList
     MainLoop
+    MoveLoop
     
 
     %var
@@ -46,12 +47,20 @@ in
         end
     end
 
+    proc {MoveLoop PlayerList} ID Position Direction in
+        case PlayerList of H|T then 
+            {System.show 'dans le case(1)'}
+            {Send H move(ID Position Direction)}
+            {System.show 'dans le case (1.5)'}
+            {Send GuiPort movePlayer(ID Position)}
+            {System.show 'dans le case(2)'}
+            {MoveLoop T}
+        [] nil then skip end
+        
+    end
+
     proc {MainLoop} ID Position Direction in
-        {Send PlayerList.1 move(ID Position Direction)}
-        case Direction of south then %{System.show 'direction sud captain'} 
-        %{System.show ID}
-        {Send GuiPort movePlayer(ID Position)}
-        end
+        {MoveLoop PlayerList}
         {Delay 3000}
         {MainLoop}
     end
@@ -72,8 +81,8 @@ in
     %init players
     {InitPlayers PlayerList}
     {System.show 'waiting for the GUI to be ready'}
-    {Delay 10000}
-    {System.show 'GUI should be ready at this point'}
+    {Delay 5000}
+    {System.show 'GUI should be ready at this point yolo'}
     %launch the game
     {MainLoop}
 

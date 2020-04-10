@@ -264,11 +264,9 @@ in
 			NewState = {DrawSubmarine Grid ID Position}
 			{TreatStream T Grid NewState|State}
 		[] movePlayer(ID Position)|T then
-			%{System.show 'GUI: movePlayer'}
-			%{System.show Position}
-			%{System.show ID}
+			{System.show 'GUI: movePlayer'}
+			{System.show ID}
 			{TreatStream T Grid {StateModification Grid ID State {MoveSubmarine Position}}}
-			%{TreatStream T Grid {StateModification Grid ID State {MoveSubmarine Position}}}
 		[] lifeUpdate(ID Life)|T then
 			{TreatStream T Grid {StateModification Grid ID State {UpdateLife Life}}}
 			{TreatStream T Grid State}

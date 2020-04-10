@@ -71,9 +71,7 @@ end
         MyColor=Color
         MyID=id(id:ID color:MyColor name:'player1')
         StartPosition=pt(x:1 y:3)
-        {System.show 'creation of player1'}
         {System.show MyID}
-        {System.show MyColor}
         thread
             {TreatStream Stream {InitState}}
         end
