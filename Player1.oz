@@ -43,11 +43,14 @@ end
 %%%%%%%%%%%%%%%%%%%%%
 
 fun {InitState} 
-    state(position:StartPosition)
+    state(position:StartPosition turnSurface:Input.turnSurface)
 end
 
 fun {UpdateState Arg L State}
-    nil
+   case Arg#L of (H1|T1)#(H2|T2)then 
+            case H1 of position then {UpdateState T1 T2 state(position:H2 turnSurface:State.turnSurface)} 
+            [] turnSurface then {UpdateState T1 T2 state(position:State.position turnSurface:H2)} end
+        [] nil#nil then State end 
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -59,7 +62,8 @@ end
             {TreatStream T State} % pas de changement de State pcq il est déjà initialisé
        [] move(ID Position Direction)|T then 
             {Move ID Position Direction State} % envoi(plutôt liage de var/val) la direction
-            {TreatStream T state(position:pt(x:State.position.x+1 y:State.position.y))} %change la direction sur le player (tjrs sud pour l'instant)
+            {TreatStream T {UpdateState position|nil pt(x:State.position.x+1 y:State.position.y)|nil State}} %change la direction sur le player (tjrs sud pour l'instant)  
+            %state(position:pt(x:State.position.x+1 y:State.position.y))
        end 
     end
 
