@@ -9,10 +9,13 @@ define
     %functions
     InitPlayers
     InitPlayerList
+    MainLoop
+    
 
     %var
     PlayerList
     GuiPort
+    InitGui
 
 in
 	%%%%%%%%%  functions  %%%%%%%%%%%%%  {PlayerManager.playerGenerator Kind Input.colors.1 1}
@@ -37,11 +40,24 @@ in
     proc {InitPlayers L} ID Position in 
         case L of H|T then 
             {Send H initPosition(ID Position)}
-            {Send GuiPort initPlayer( ID Position)}
+            {Send GuiPort initPlayer(ID Position)}
             {InitPlayers T}
         [] nil then skip
         end
     end
+
+    proc {MainLoop} ID Position Direction in
+        {Send PlayerList.1 move(ID Position Direction)}
+        case Direction of south then %{System.show 'direction sud captain'} 
+        %{System.show ID}
+        {Send GuiPort movePlayer(ID Position)}
+        end
+        {Delay 3000}
+        {MainLoop}
+    end
+
+
+    
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -55,9 +71,11 @@ in
 
     %init players
     {InitPlayers PlayerList}
-
+    {System.show 'waiting for the GUI to be ready'}
+    {Delay 10000}
+    {System.show 'GUI should be ready at this point'}
     %launch the game
-    %{InitPlayers PlayerList}
+    {MainLoop}
 
 
 

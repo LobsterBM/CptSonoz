@@ -67,7 +67,7 @@ in
 
    NbPlayer = 2
    Players = [player1 player2]
-   Colors = [yellow green red blue]
+   Colors = [blue green red yellow]
 
 %%%% Thinking parameters (only in simultaneous) %%%%
 
