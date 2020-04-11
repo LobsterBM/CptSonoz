@@ -12,13 +12,13 @@ define
     InitState
     MainLoop
     MoveLoop
+    CheckDiveLoop
     UpdateState
     
 
     %var
     PlayerList
-    GuiPort
-    InitGui
+    GUIPort
     NbPlayer
 
 in
@@ -42,11 +42,10 @@ in
     %%%%%%%%%%%%%%
 
     proc {InitPlayers L} 
-        N
         proc {Sub L N} ID Position in 
             case L of H|T then 
                 {Send H initPosition(ID Position)}
-                {Send GuiPort initPlayer(ID Position)}
+                {Send GUIPort initPlayer(ID Position)}
                 {Sub T N+1}
             [] nil then NbPlayer=N end
         end
@@ -57,15 +56,46 @@ in
     %%%%%%%%%%%%%%
 
     proc {MoveLoop PlayerList} ID Position Direction in
+        {System.show 'MoveLoop'}
         case PlayerList of H|T then 
+            {System.show 'move H|T'}
             {Send H move(ID Position Direction)}
-            {Send GuiPort movePlayer(ID Position)}
+            {Send GUIPort movePlayer(ID Position)}
             {MoveLoop T}
         [] nil then skip end
         
     end
 
-   
+    %%%%%%%%%%%%%%
+
+    %return un nouveau State
+    fun {CheckDiveLoop PlayerList State}
+        %return une nouvelle playerStateList et envoi le msg dive si un sub peut dive
+        fun {Sub PlayerList L}
+            {System.show 'appel de checkdive sub'}
+            case PlayerList#L of (H1|T1)#(H2|T2) then 
+                {System.show 'sub case X#Y'}
+                if H2.isSurface==true andthen H2.turnSurface==0 then 
+                    {System.show 'sub dive'}
+                   {Send H1 dive}
+                   playerState(isSurface:false turnSurface:0 isDead:H2.isDead)|{Sub T1 T2}
+                elseif  H2.isSurface==true then
+                    {System.show 'sub no dive'} 
+                   playerState(isSurface:true turnSurface:H2.turnSurface-1 isDead:H2.isDead)|{Sub T1 T2}
+                else 
+                    H2|{Sub T1 T2}
+                end
+            [] nil#nil then {System.show 'sub case nil'} nil 
+            else {System.show 'fail dans le case'}  yolo
+            end
+        end
+    in 
+        %change le state pour un nouveau state avec les décompte des turnSurface et les envois de msg dive (si nécéssaire) faits
+
+        {UpdateState playerStateList|nil list(v:{Sub PlayerList State.playerStateList})|nil State} 
+        
+    end 
+
     %%%%%%%%%%%%%%
 
     fun {InitState PlayerList}  
@@ -84,24 +114,28 @@ in
 
     fun {UpdateState Arg L State}
         case Arg#L of (H1|T1)#(H2|T2)then 
-            case H1 of turn then {UpdateState T1 T2 state(turn:H2  playerStateList:State.playerStateList)} end
+            case H1 of turn then {UpdateState T1 T2 state(turn:H2  playerStateList:State.playerStateList)} 
+            [] playerStateList then {UpdateState T1 T2 state(turn:State.turn playerStateList:H2.v)}
+            else {System.show 'erreur dans UpdateState'}
+            end
         [] nil#nil then State end 
     end
 
     %%%%%%%%%%%%%%
 
-    proc {MainLoop State} ID Position Direction in
+    proc {MainLoop State} NewState in 
         {System.show 'turn:'} {System.show State.turn} % moche af
         {MoveLoop PlayerList}
+        NewState= {CheckDiveLoop PlayerList State}
         {Delay 2000}
-        {MainLoop {UpdateState turn|nil State.turn+1|nil State}}
+        {MainLoop {UpdateState turn|nil NewState.turn+1|nil NewState}}
     end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 	%creation of the GUI's port
-    GuiPort={GUI.portWindow}
-    {Send GuiPort buildWindow}
+    GUIPort={GUI.portWindow}
+    {Send GUIPort buildWindow}
     
     %creation of the players's port
     PlayerList={InitPlayerList}

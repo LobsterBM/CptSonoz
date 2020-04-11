@@ -56,14 +56,15 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     proc{TreatStream Stream State} % as as many parameters as you want
-       case Stream of nil then skip
-       [] initPosition(ID Position)|T then 
+        case Stream of nil then skip
+        [] initPosition(ID Position)|T then 
             {InitPosition ID Position}
             {TreatStream T State} % pas de changement de State pcq il est déjà initialisé
-       [] move(ID Position Direction)|T then 
+        [] move(ID Position Direction)|T then 
             {Move ID Position Direction State} % envoi(plutôt liage de var/val) la direction
             {TreatStream T {UpdateState position|nil pt(x:State.position.x+1 y:State.position.y)|nil State}} %change la direction sur le player (tjrs sud pour l'instant)  
             %state(position:pt(x:State.position.x+1 y:State.position.y))
+        [] dive|T then {TreatStream T State}
        end 
     end
 
