@@ -3,3 +3,9 @@
 *.json
 *.ozf
 *.ozf
+GUI.ozf
+Input.ozf
+Main.ozf
+Player1.ozf
+Player2.ozf
+PlayerManager.ozf
