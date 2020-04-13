@@ -22,6 +22,10 @@ define
     NbPlayer
 
 in
+
+    
+
+
 	%%%%%%%%%  functions  %%%%%%%%%%%%%  {PlayerManager.playerGenerator Kind Input.colors.1 1}
 
     fun {InitPlayerList}
@@ -40,6 +44,15 @@ in
 
 
     %%%%%%%%%%%%%%
+
+    
+
+
+
+
+
+
+    %%%%%%%%%%%%%
 
     proc {InitPlayers L} 
         proc {Sub L N} ID Position in 
@@ -132,6 +145,7 @@ in
     end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 	%creation of the GUI's port
     GUIPort={GUI.portWindow}
