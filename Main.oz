@@ -60,13 +60,16 @@ in
 
     %%%%%%%%%%%%%%
 
-    proc {MoveLoop PlayerList} ID Position Direction in
+    proc {MoveLoop Zero Pos PlayerList} ID Position Direction in
         {System.show 'MoveLoop'}
         case PlayerList of H|T then 
-            {System.show 'move H|T'}
-            {Send H move(ID Position Direction)}
-            {Send GUIPort movePlayer(ID Position)}
-            {MoveLoop T}
+            if Zero == Pos then
+                {System.show 'move H|T'}
+                {Send H move(ID Position Direction)}
+                {Send GUIPort movePlayer(ID Position)}
+                {MoveLoop Zero+1 Pos T}
+            else
+                {MoveLoop Zero+1 Pos T}
         [] nil then skip end
         
     end
@@ -104,22 +107,27 @@ in
       %%%%%%%%%%%%%%
 
     %return un nouveau State
-    fun {CheckDiveSingle PlayerList State}
+    fun {CheckDiveSingle  Pos PlayerList State}
         %return une nouvelle playerStateList et envoi le msg dive si un sub peut dive
-        fun {Sub PlayerList L}
+        fun {Sub Zero Pos PlayerList L}
             {System.show 'appel de checkdive sub'}
             case PlayerList#L of (H1|T1)#(H2|T2) then 
-                {System.show 'sub case X#Y'}
-                if H2.isSurface==true andthen H2.turnSurface==0 then 
-                    {System.show 'sub dive'}
-                   {Send H1 dive}
-                   playerState(isSurface:false turnSurface:0 isDead:H2.isDead)|{Sub T1 T2}
-                elseif  H2.isSurface==true then
-                    {System.show 'sub no dive'} 
-                   playerState(isSurface:true turnSurface:H2.turnSurface-1 isDead:H2.isDead)|{Sub T1 T2}
-                else 
-                    H2|{Sub T1 T2}
-                end
+                if Zero == Pos then 
+                
+                    {System.show 'sub case X#Y'}
+                    if H2.isSurface==true andthen H2.turnSurface==0 then 
+                        {System.show 'sub dive'}
+                    {Send H1 dive}
+                    playerState(isSurface:false turnSurface:0 isDead:H2.isDead)|{Sub Zero+1 Pos T1 T2}
+                    elseif  H2.isSurface==true then
+                        {System.show 'sub no dive'} 
+                    playerState(isSurface:true turnSurface:H2.turnSurface-1 isDead:H2.isDead)|{Sub Zero+1 Pos T1 T2}
+                    else 
+                        H2|{Sub Zero+1 Pos T1 T2}
+                    end
+                    else
+                        H2|{Sub Zero+1 Pos T1 T2} 
+                    end
             [] nil#nil then {System.show 'sub case nil'} nil 
             else {System.show 'fail dans le case'}  yolo
             end
@@ -127,7 +135,7 @@ in
     in 
         %change le state pour un nouveau state avec les décompte des turnSurface et les envois de msg dive (si nécéssaire) faits
 
-        {UpdateState playerStateList|nil list(v:{Sub PlayerList State.playerStateList})|nil State} 
+        {UpdateState playerStateList|nil list(v:{Sub 0 Pos PlayerList State.playerStateList})|nil State} 
         
     end 
 
