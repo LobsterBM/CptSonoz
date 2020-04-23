@@ -44,14 +44,29 @@ in
 
 
     %%%%%%%%%%%%%%
-
     
+    proc {TurnManager State }
+        fun{Turn State L Count} NewState in
+        case L of H|T then 
+            TurnOver = {SurfaceChecker State L Count} %% TODO make surf funtion that returns whether or not turn is over
+            if TurnOver == false then
+                %%TODO reassign TurnOver to change from tru to false and vice versa 
+                TurnOver = {Move State L Count}
+
+                if TurnOver == false %% in case direction is surface 
+                    {ItemCharge State L Count}
+                    {ItemFire State L Count}
+                    {MineExploder State L Count}
+                    
+
+        nil then State
 
 
 
 
 
 
+    end
     %%%%%%%%%%%%%
 
     proc {InitPlayers L} 
