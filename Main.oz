@@ -43,30 +43,7 @@ in
     end
 
 
-    %%%%%%%%%%%%%%
-    
-    proc {TurnManager State }
-        fun{Turn State L Count} NewState in
-        case L of H|T then 
-            TurnOver = {SurfaceChecker State L Count} %% TODO make surf funtion that returns whether or not turn is over
-            if TurnOver == false then
-                %%TODO reassign TurnOver to change from tru to false and vice versa 
-                TurnOver = {Move State L Count}
 
-                if TurnOver == false %% in case direction is surface 
-                    {ItemCharge State L Count}
-                    {ItemFire State L Count}
-                    {MineExploder State L Count}
-                    
-
-        nil then State
-
-
-
-
-
-
-    end
     %%%%%%%%%%%%%
 
     proc {InitPlayers L} 
@@ -124,7 +101,38 @@ in
         
     end 
 
+      %%%%%%%%%%%%%%
+
+    %return un nouveau State
+    fun {CheckDiveSingle PlayerList State}
+        %return une nouvelle playerStateList et envoi le msg dive si un sub peut dive
+        fun {Sub PlayerList L}
+            {System.show 'appel de checkdive sub'}
+            case PlayerList#L of (H1|T1)#(H2|T2) then 
+                {System.show 'sub case X#Y'}
+                if H2.isSurface==true andthen H2.turnSurface==0 then 
+                    {System.show 'sub dive'}
+                   {Send H1 dive}
+                   playerState(isSurface:false turnSurface:0 isDead:H2.isDead)|{Sub T1 T2}
+                elseif  H2.isSurface==true then
+                    {System.show 'sub no dive'} 
+                   playerState(isSurface:true turnSurface:H2.turnSurface-1 isDead:H2.isDead)|{Sub T1 T2}
+                else 
+                    H2|{Sub T1 T2}
+                end
+            [] nil#nil then {System.show 'sub case nil'} nil 
+            else {System.show 'fail dans le case'}  yolo
+            end
+        end
+    in 
+        %change le state pour un nouveau state avec les décompte des turnSurface et les envois de msg dive (si nécéssaire) faits
+
+        {UpdateState playerStateList|nil list(v:{Sub PlayerList State.playerStateList})|nil State} 
+        
+    end 
+
     %%%%%%%%%%%%%%
+    
 
     fun {InitState PlayerList}  
         fun {Sub L}
@@ -151,11 +159,43 @@ in
 
     %%%%%%%%%%%%%%
 
-    proc {MainLoop State} NewState in 
+    proc {MainLoop State} NewState 
+        fun{Turn State L Count} NewState in
+            case L of H|T then 
+
+
+                SurfaceState = % checkdiveloop 
+                %{SurfaceChecker State L Count} %% TODO make surf funtion that returns whether or not turn is over
+                if SurfaceState == false then
+                  %%TODO reassign TurnOver to change from tru to false and vice versa 
+                  MoveState = {Move SurfaceState L Count}
+                  %%checkdiveloop in move 
+
+                  SurfaceState2 =   %
+
+                  if SurfaceState2 == false %% in case direction is surface 
+                      ChargeState = {ItemCharge MoveState L Count}
+                       FireState = {ItemFire ChargeState L Count}
+                      EndState{MineExploder FireState L Count}
+                      %%% 
+
+                   else
+                   end
+             else 
+             end
+           
+
+            nil then State %%end turn ? 
+            else
+        end
+    
+    
+    in 
         {System.show 'turn:'} {System.show State.turn} % moche af
         {MoveLoop PlayerList}
         NewState= {CheckDiveLoop PlayerList State}
         {Delay 2000}
+        {Turn State L Count}
         {MainLoop {UpdateState turn|nil NewState.turn+1|nil NewState}}
     end
 
