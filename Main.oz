@@ -148,9 +148,20 @@ in
     %%%%%%%%%%%%%%
 
     fun{ItemFire State PlayerList Pos Zero}
-    ID 
+    ID Type
     case PlayerList of H|T then
         if Zero == Pos then
+            case Type of 
+                mine(Aim) then % oops , Pos was already taken
+                [] missile(Aim) then 
+                [] sonar then
+                [] drone then 
+                else nil 
+            end
+
+
+
+
 
         else
             {ItemFire State T Pos Zero+1}
