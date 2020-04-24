@@ -140,7 +140,33 @@ in
     end 
 
     %%%%%%%%%%%%%%
-    
+    fun{ItemCharge }
+    end
+
+
+
+    %%%%%%%%%%%%%%
+
+    fun{ItemFire State PlayerList Pos Zero}
+    ID 
+    case PlayerList of H|T then
+        if Zero == Pos then
+
+        else
+            {ItemFire State T Pos Zero+1}
+        end
+        
+    end
+
+
+    %%%%%%%%%%%%%%
+
+    fun{MineExploder State PlayerList Pos Zero}
+
+    end
+
+
+    %%%%%%%%%%%%%%
 
     fun {InitState PlayerList}  
         fun {Sub L}
