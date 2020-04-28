@@ -275,7 +275,6 @@ in
 		[] removeMine(ID Position)|T then
 			{TreatStream T Grid {StateModification Grid ID State {RemoveMine Position}}}
 		[] surface(ID)|T then
-			{System.show 'GUI: surface'}
 			{TreatStream T Grid {StateModification Grid ID State RemovePath}}
 		[] removePlayer(ID)|T then
 			{TreatStream T Grid {RemovePlayer Grid ID State}}

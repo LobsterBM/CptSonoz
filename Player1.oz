@@ -178,6 +178,12 @@ end
               {TreatStream T {UpdateState position|nil Position|nil State}}    
             end
         [] dive|T then {System.show ' go go go dive'} {TreatStream T {UpdateState turnSurface|nil 0|nil State}}
+        [] sayMineExplode(ID Position Message)|T then 
+            Message=null 
+            ID=MyID 
+            Position=null
+            {System.show 'Player 1:Mine explode'} {TreatStream T State}
+        [] fireMine(ID Mine)|T then ID=MyID Mine=pt(x:6 y:5) {System.show 'player1 has explode a mine'}  {TreatStream T State}
        end 
     end
 
