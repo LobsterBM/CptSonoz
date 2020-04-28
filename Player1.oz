@@ -157,11 +157,17 @@ end
             {InitPosition ID Position}
             {TreatStream T State} % pas de changement de State pcq il est déjà initialisé
         [] move(ID Position Direction)|T then 
-            {System.show 'player1 did move'}
-            {Move ID Position Direction State} % envoi(plutôt liage de var/val) la direction
-            {TreatStream T {UpdateState position|nil Position|nil State}}         %change la direction sur le player (tjrs sud pour l'instant)  
-            %state(position:pt(x:State.position.x+1 y:State.position.y))
-        [] dive|T then {System.show ' go go go dive'} {TreatStream T State}
+            {System.show 'player1 did move. turnSurface:'#State.turnSurface}
+            if State.turnSurface>0 then 
+              ID=MyID
+              Direction=idle
+              Position=State.position
+              {TreatStream T State}  
+            else
+              {Move ID Position Direction State} 
+              {TreatStream T {UpdateState position|nil Position|nil State}}    
+            end
+        [] dive|T then {System.show ' go go go dive'} {TreatStream T {UpdateState turnSurface|nil 0|nil State}}
        end 
     end
 

@@ -129,7 +129,7 @@ proc {Move ID Position Direction State} Val L in
     ID=MyID
     L={ListPossibleMove State.position MapArray}
     case L of H|T then {Array.put MapArray {PosToIndex H.pos} 2} Position=H.pos Direction=H.dir 
-    [] nil then {System.show 'go surface'} end
+    [] nil then Direction=dive {System.show 'go surface'} end
 
     
 end
@@ -157,11 +157,17 @@ end
             {InitPosition ID Position}
             {TreatStream T State} % pas de changement de State pcq il est déjà initialisé
         [] move(ID Position Direction)|T then 
-            {System.show 'player1 did move'}
-            {Move ID Position Direction State} % envoi(plutôt liage de var/val) la direction
-            {TreatStream T {UpdateState position|nil Position|nil State}}         %change la direction sur le player (tjrs sud pour l'instant)  
-            %state(position:pt(x:State.position.x+1 y:State.position.y))
-        [] dive|T then {System.show ' go go go dive'} {TreatStream T State}
+            {System.show 'player2 did move. turnSurface:'#State.turnSurface}
+            if State.turnSurface>0 then 
+              ID=MyID
+              Direction=idle
+              Position=State.position
+              {TreatStream T State}  
+            else
+              {Move ID Position Direction State} 
+              {TreatStream T {UpdateState position|nil Position|nil State}}    
+            end
+        [] dive|T then {System.show ' go go go dive'} {TreatStream T {UpdateState turnSurface|nil 0|nil State}}
        end 
     end
 
@@ -173,7 +179,7 @@ end
         MapArray={ConvertMapToArray Input.map 10 10}
         MyColor=Color
         MyID=id(id:ID color:MyColor name:'player2')
-        StartPosition=pt(x:1 y:6)
+        StartPosition=pt(x:1 y:7)
         {System.show MyID}
         thread
             {TreatStream Stream {InitState}}
