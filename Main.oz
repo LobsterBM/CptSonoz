@@ -245,10 +245,8 @@ in
     if Mine == null then State %no mine exploded 
     else
        ResState = {MineRecursive State PlayerList Mine ID PlayerList} 
-
-
-
-
+       ResState
+       %realised this could have been done cleaner , but if it aint broke don't fix it 
 
     end
 
