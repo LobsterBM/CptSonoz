@@ -190,6 +190,7 @@ in
                         %% keep record of mines placed on array ? 
 
                     [] missile(Aim) then
+                        {MissileExploder State PlayerList Pos Zero Player}
                         
                     [] sonar(ID) then %% not mandatory , will do if I have time 
 
@@ -210,6 +211,53 @@ in
         
     end
 
+
+
+    %%%%%%%%%%%%%%
+    fun{MissileRecursive State PlayerList Aim ID BasePlayerList} %keep basplayerlist intact for radio function
+        case PlayerList of H|T then 
+            Message in
+            %Loop through players 
+            {Send H sayMissileExplode(ID Aim Message)}
+            %if Message == null then State
+            case Message of null then State
+                []sayDeath(ID2) then 
+                    {PlayerRadio BasePlayerList sayDeath(ID2)}
+                    {Send GUIPort removePlayer(ID2)}
+                    %% TODO updateState 
+
+
+                []sayDamageTaken(ID2 Damage LifeLeft) then 
+                {PlayerRadio BasePlayerList sayDamandeTaken(ID2 Damage LifeLeft)}
+                {Send GUIPort lifeUpdate(ID2 LifeLeft)}
+                %TODO updatestate 
+
+                end
+
+            {MissileRecursive State T Aim ID BasePlayerList} %TODO  use new state variable after updating 
+
+
+            end
+
+            {Send GUIPort removeMine(ID Aim )}
+
+
+
+    end
+
+    
+    %%%%%%%%%%%%%%
+    
+
+    fun{MissileExploder State PlayerList Pos Zero Player}
+    ID Mine in
+        MissileState = {MissileRecursive State PlayerList Missile }
+        MissileState
+    end
+
+
+
+    
 
     %%%%%%%%%%%%%%
     fun{MineRecursive State PlayerList Aim ID BasePlayerList} %keep basplayerlist intact for radio function
