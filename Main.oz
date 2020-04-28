@@ -143,7 +143,21 @@ in
     fun{ItemCharge }
     end
 
+    
+    %%%%%%%%%%%%%%
 
+    proc{SonarRes PlayerList  }
+
+    %%%%%%%%%%%%%%
+    proc{DroneRes PlayerList Drone Sender } %% sender is the player that launched drone 
+    ID Answer in
+        case PlayerList of H|T then
+        {Send H sayPassingDrone(Drone ID Answer)} %checks only one point ?
+        {Send Sender sayAnswerDrone(Drone ID Answer)}
+        {DroneRes T Drone Sender}
+        []nil then skip 
+        end
+    end
 
     %%%%%%%%%%%%%%
 
@@ -151,14 +165,33 @@ in
     ID Type
     case PlayerList of H|T then
         if Zero == Pos then
-            case Type of 
-                mine(Aim) then % oops , Pos was already taken
-                [] missile(Aim) then 
-                [] sonar then
-                [] drone then 
-                else nil 
-            end
+            if ID == null then 
+                State
+            else
+                
+                case Type of 
+                    mine(Aim) then % oops , Pos was already taken
+                        %ID Mine in
+                        %{Send H fireMine(ID Mine)} 
+                        %% pas clair si fireMine est appelé pendant la phase fire ou explode ou les deux ? 
+                        %if Mine == null then 
+                        {PlayerRadio PlayerList sayMinePlaced(ID)}
+                        {Send GUIPort putMine(ID Aim)} %% pour l'affichage graphique 
+                        State
+                        %not sure if state need to be updated 
+                        %% keep record of mines placed on array ? 
 
+                    [] missile(Aim) then
+                        
+                    [] sonar(ID) then %% not mandatory , will do if I have time 
+
+
+                    [] drone(ID Drone) then %% drones only detects players , not mines , uses single line instead of classic sector search
+
+
+                    else nil then State
+                end
+            end
 
 
 
@@ -171,10 +204,69 @@ in
 
 
     %%%%%%%%%%%%%%
+    fun{MineRecursive State PlayerList Aim ID BasePlayerList} %keep basplayerlist intact for radio function
+        case PlayerList of H|T then 
+            Message in
+            %Loop through players 
+            {Send H sayMineExplode(ID Aim Message)}
+            %if Message == null then State
+            case Message of null then State
+                []sayDeath(ID2) then 
+                    {PlayerRadio BasePlayerList sayDeath(ID2)}
+                    {Send GUIPort removePlayer(ID2)}
+                    %% TODO updateState 
 
-    fun{MineExploder State PlayerList Pos Zero}
+
+                []sayDamageTaken(ID2 Damage LifeLeft) then 
+                {PlayerRadio BasePlayerList sayDamandeTaken(ID2 Damage LifeLeft)}
+                {Send GUIPort lifeUpdate(ID2 LifeLeft)}
+                %TODO updatestate 
+
+                end
+
+            {MineRecursive State T Aim ID BasePlayerList} %TODO  use new state variable after updating 
+
+
+            end
+
+            {Send GUIPort removeMine(ID Aim )}
+
+
 
     end
+
+    
+    %%%%%%%%%%%%%%
+    
+
+    fun{MineExploder State PlayerList Pos Zero Player}
+    ID Mine in 
+    {Send Player fireMine(ID Mine)}
+    if Mine == null then State %no mine exploded 
+    else
+       ResState = {MineRecursive State PlayerList Mine ID PlayerList} 
+
+
+
+
+
+    end
+
+
+    end
+
+
+    %%%%%%%%%%%%%%
+    proc{PlayerRadio PlayerList Info} %TODO maybe send back acknowledgement with fun instead?
+        case PlayerList of H|T then 
+            {Send H Info}
+            {PlayerRadio T Info}
+        [] nil then
+            {System.show "Message has been sent to all players "}
+        end 
+    end
+
+
 
 
     %%%%%%%%%%%%%%
