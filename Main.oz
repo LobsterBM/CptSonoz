@@ -8,16 +8,18 @@ define
     
     %functions
     InitPlayers
-    InitPlayerList
+    InitPlayerPortList
     InitState
     MainLoop
     MoveLoop
     CheckDiveLoop
+    CheckDive
     UpdateState
+    Move
     
 
     %var
-    PlayerList
+    PlayerPortList
     GUIPort
     NbPlayer
 
@@ -28,7 +30,7 @@ in
 
 	%%%%%%%%%  functions  %%%%%%%%%%%%%  {PlayerManager.playerGenerator Kind Input.colors.1 1}
 
-    fun {InitPlayerList}
+    fun {InitPlayerPortList}
         fun {Sub Kind Color N} 
             if N=<Input.nbPlayer then 
                 case Kind#Color of (H1|T1)#(H2|T2) then 
@@ -60,6 +62,15 @@ in
 
     %%%%%%%%%%%%%%
 
+    proc {Move PlayerState} ID Position Direction in
+                {Send PlayerState.port move(ID Position Direction)}
+                {Send GUIPort movePlayer(ID Position)}
+    end
+
+    %%%%%%%%%%%%%%
+
+
+    /*
     proc {MoveLoop Zero Pos PlayerList} ID Position Direction in
         {System.show 'MoveLoop'}
         case PlayerList of H|T then 
@@ -72,7 +83,7 @@ in
                 {MoveLoop Zero+1 Pos T}
         [] nil then skip end
         
-    end
+    end*/
 
     %%%%%%%%%%%%%%
 
@@ -106,7 +117,21 @@ in
 
       %%%%%%%%%%%%%%
 
-    %return un nouveau State
+      fun {CheckDive PlayerState}
+        if PlayerState.isSurface==true andthen PlayerState.turnSurface==0 then 
+                    {System.show 'sub dive'}
+                    {Send PlayerState.port dive}
+                   playerState(isSurface:false turnSurface:0 isDead:PlayerState.isDead port:PlayerState.port)
+        elseif  PlayerState.isSurface==true then
+                    {System.show 'sub no dive'} 
+                   playerState(isSurface:true turnSurface:PlayerState.turnSurface-1 isDead:PlayerState.isDead port:PlayerState.port)
+        else PlayerState
+        end
+      end
+
+      %%%%%%%%%%%%%%
+
+  /*  %return un nouveau State
     fun {CheckDiveSingle  Pos PlayerList State}
         %return une nouvelle playerStateList et envoi le msg dive si un sub peut dive
         fun {Sub Zero Pos PlayerList L}
@@ -137,10 +162,10 @@ in
 
         {UpdateState playerStateList|nil list(v:{Sub 0 Pos PlayerList State.playerStateList})|nil State} 
         
-    end 
+    end */
 
     %%%%%%%%%%%%%%
-    proc{ItemCharge Player PlayerList }
+   /* proc{ItemCharge Player PlayerList }
         ID KindItem in 
         {Send Player chargeItem(ID KindItem)}
         if KindItem \= null %ie an item was created by the charge 
@@ -149,15 +174,15 @@ in
             skip
         end 
 
-    end
+    end*/
 
     
     %%%%%%%%%%%%%%
 
-    proc{SonarRes PlayerList  }
+   % proc{SonarRes PlayerList  }
 
     %%%%%%%%%%%%%%
-    proc{DroneRes PlayerList Drone Sender } %% sender is the player that launched drone 
+    /*proc{DroneRes PlayerList Drone Sender } %% sender is the player that launched drone 
     ID Answer in
         case PlayerList of H|T then
         {Send H sayPassingDrone(Drone ID Answer)} %checks only one point ?
@@ -165,11 +190,11 @@ in
         {DroneRes T Drone Sender}
         []nil then skip 
         end
-    end
+    end*/
 
     %%%%%%%%%%%%%%
 
-    fun{ItemFire State PlayerList Pos Zero}
+    /*fun{ItemFire State PlayerList Pos Zero}
     ID Type
     case PlayerList of H|T then
         if Zero == Pos then
@@ -208,11 +233,11 @@ in
             {ItemFire State T Pos Zero+1}
         end
         
-    end
+    end*/
 
 
     %%%%%%%%%%%%%%
-    fun{MineRecursive State PlayerList Aim ID BasePlayerList} %keep basplayerlist intact for radio function
+    /*fun{MineRecursive State PlayerList Aim ID BasePlayerList} %keep basplayerlist intact for radio function
         case PlayerList of H|T then 
             Message in
             %Loop through players 
@@ -241,12 +266,12 @@ in
 
 
 
-    end
+    end*/
 
     
     %%%%%%%%%%%%%%
     
-
+    /*
     fun{MineExploder State PlayerList Pos Zero Player}
     ID Mine in 
     {Send Player fireMine(ID Mine)}
@@ -259,10 +284,11 @@ in
     end
 
 
-    end
+    end*/
 
 
     %%%%%%%%%%%%%%
+    /*
     proc{PlayerRadio PlayerList Info} %TODO maybe send back acknowledgement with fun instead?
         case PlayerList of H|T then 
             {Send H Info}
@@ -272,29 +298,29 @@ in
         end 
     end
 
-
+    */
 
 
     %%%%%%%%%%%%%%
 
-    fun {InitState PlayerList}  
+    fun {InitState PlayerPortList}  
         fun {Sub L}
-            case L of H|T then playerState(isSurface:true turnSurface:Input.turnSurface isDead:false)|{Sub T} 
+            case L of H|T then playerState(isSurface:true turnSurface:Input.turnSurface isDead:false port:H)|{Sub T} 
             else nil end
         end
     in
-        state(turn:1 playerStateList:{Sub PlayerList})
+        state(turn:1 playerStateList:{Sub PlayerPortList})
     end
 
-    %%%%%%%%%%%%%%
-
+    %%%%%%%%%%%%%% 
+    
     %% state(turn<int>:x  playerStateList<list<record>>:x)
     %% playerState(isSurface<bool>:x turnSurface<int>:x isDead<bool>:x)
 
     fun {UpdateState Arg L State}
         case Arg#L of (H1|T1)#(H2|T2)then 
             case H1 of turn then {UpdateState T1 T2 state(turn:H2  playerStateList:State.playerStateList)} 
-            [] playerStateList then {UpdateState T1 T2 state(turn:State.turn playerStateList:H2.v)}
+            [] playerStateList then {UpdateState T1 T2 state(turn:State.turn playerStateList:H2)}
             else {System.show 'erreur dans UpdateState'}
             end
         [] nil#nil then State end 
@@ -302,12 +328,11 @@ in
 
     %%%%%%%%%%%%%%
 
-    proc {MainLoop State} NewState 
+  /*  proc {MainLoop State} NewState 
         fun{Turn State L Count} NewState in
             case L of H|T then 
 
-
-                SurfaceState = % checkdiveloop 
+                %SurfaceState = % checkdiveloop 
                 %{SurfaceChecker State L Count} %% TODO make surf funtion that returns whether or not turn is over
                 if SurfaceState == false then
                   %%TODO reassign TurnOver to change from tru to false and vice versa 
@@ -331,14 +356,40 @@ in
             nil then State %%end turn ? 
             else
         end
-    
+
     
     in 
-        {System.show 'turn:'} {System.show State.turn} % moche af
-        {MoveLoop PlayerList}
-        NewState= {CheckDiveLoop PlayerList State}
+        {System.show 'turn:'#State.turn} 
+       % {MoveLoop PlayerList}
+        %NewState= {CheckDiveLoop PlayerList State}
         {Delay 2000}
-        {Turn State L Count}
+        
+        {MainLoop {UpdateState turn|nil NewState.turn+1|nil NewState}}
+    end*/
+
+    %%%%%%%%%%%%%%
+
+    proc {MainLoop State} NewState NewPlayerPortList
+
+        fun {Turn PlayerState} S1 in
+            S1={CheckDive PlayerState}
+            {Move PlayerState}
+            S1
+        end
+
+        fun {Sub L}
+            case L of H|T then 
+                {Turn H}|{Sub T}
+            [] nil then nil end
+        end
+
+    
+    in 
+        {System.show 'turn:'#State.turn} 
+        
+        {Delay 2000}
+        NewPlayerPortList = {Sub State.playerStateList}
+        NewState = {UpdateState playerStateList|nil NewPlayerPortList|nil State}
         {MainLoop {UpdateState turn|nil NewState.turn+1|nil NewState}}
     end
 
@@ -350,19 +401,22 @@ in
     {Send GUIPort buildWindow}
     
     %creation of the players's port
-    PlayerList={InitPlayerList}
+    PlayerPortList={InitPlayerPortList}
 
 
     %init players
-    {InitPlayers PlayerList}
+    {InitPlayers PlayerPortList}
     {System.show 'waiting for the GUI to be ready'}
     {Delay 5000}
     {System.show 'GUI should be ready at this point'}
 
     %launch the game
-    {MainLoop {InitState PlayerList}}
-
+    {MainLoop {InitState PlayerPortList}}
 
 
 
 end
+
+
+
+

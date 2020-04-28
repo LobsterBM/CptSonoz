@@ -129,7 +129,7 @@ proc {Move ID Position Direction State} Val L in
     ID=MyID
     L={ListPossibleMove State.position MapArray}
     case L of H|T then {Array.put MapArray {PosToIndex H.pos} 2} Position=H.pos Direction=H.dir 
-    [] nil then {System.show 'go surface'} end
+    [] nil then Direction=dive {System.show 'go surface'} end
 
     
 end
@@ -161,7 +161,7 @@ end
             {Move ID Position Direction State} % envoi(plutôt liage de var/val) la direction
             {TreatStream T {UpdateState position|nil Position|nil State}}         %change la direction sur le player (tjrs sud pour l'instant)  
             %state(position:pt(x:State.position.x+1 y:State.position.y))
-        [] dive|T then {TreatStream T State}
+        [] dive|T then {System.show ' go go go dive'} {TreatStream T State}
        end 
     end
 
