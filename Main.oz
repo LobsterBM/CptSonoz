@@ -154,7 +154,16 @@ in
     
     %%%%%%%%%%%%%%
 
-    proc{SonarRes PlayerList  }
+    proc{SonarRes PlayerList Sonar Sender } %TODO : not sure if sonar is it's own type like drone 
+    ID Answer in
+        case PlayerList of H|T then 
+        {Send H sayPassingSonar(ID Answer)}
+        {Send Player sayAnswerSonar(ID Answer)}
+        {SonarRes T Sonar Sender }
+    [] nil then skip 
+    end
+    
+    end 
 
     %%%%%%%%%%%%%%
     proc{DroneRes PlayerList Drone Sender } %% sender is the player that launched drone 
@@ -191,12 +200,18 @@ in
 
                     [] missile(Aim) then
                         {MissileExploder State PlayerList Pos Zero Player}
-                        
+                        %maybe send newState?
                     [] sonar(ID) then %% not mandatory , will do if I have time 
+                        {Send GUIPort sonar(ID)}
+                        {SonarRes PlayerList ID Player}
+                        %TODO state ?
+
 
 
                     [] drone(ID Drone) then %% drones only detects players , not mines , uses single line instead of classic sector search
-
+                        {Send GUIPort drone(ID Drone)}
+                        {DroneRes PlayerList Drone Player}
+                        %TODO state? 
 
                     else nil then State
                 end
