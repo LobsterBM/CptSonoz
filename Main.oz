@@ -178,10 +178,10 @@ in
 
     %%%%%%%%%%%%%%
 
-    fun{ItemFire State PlayerList Pos Zero}
-    ID Type
-    case PlayerList of H|T then
-        if Zero == Pos then
+    fun{ItemFire State PlayerList Player}
+    ID KindFire in
+    {Send Player fireItem(ID KindFire)}
+
             if ID == null then 
                 State
             else
@@ -199,7 +199,7 @@ in
                         %% keep record of mines placed on array ? 
 
                     [] missile(Aim) then
-                        {MissileExploder State PlayerList Pos Zero Player}
+                        {MissileExploder State PlayerList Player}
                         %maybe send newState?
                     [] sonar(ID) then %% not mandatory , will do if I have time 
                         {Send GUIPort sonar(ID)}
@@ -213,7 +213,7 @@ in
                         {DroneRes PlayerList Drone Player}
                         %TODO state? 
 
-                    else nil then State
+                    else null then State
                 end
             end
 
@@ -221,7 +221,7 @@ in
 
 
         else
-            {ItemFire State T Pos Zero+1}
+            State
         end
         
     end
@@ -264,7 +264,7 @@ in
     %%%%%%%%%%%%%%
     
 
-    fun{MissileExploder State PlayerList Pos Zero Player}
+    fun{MissileExploder State PlayerList  Player}
     ID Mine in
         MissileState = {MissileRecursive State PlayerList Missile }
         MissileState
@@ -310,7 +310,7 @@ in
     %%%%%%%%%%%%%%
     
 
-    fun{MineExploder State PlayerList Pos Zero Player}
+    fun{MineExploder State PlayerList Player}
     ID Mine in 
     {Send Player fireMine(ID Mine)}
     if Mine == null then State %no mine exploded 
