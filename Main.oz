@@ -140,7 +140,14 @@ in
     end 
 
     %%%%%%%%%%%%%%
-    fun{ItemCharge }
+    proc{ItemCharge Player PlayerList }
+        ID KindItem in 
+        {Send Player chargeItem(ID KindItem)}
+        if KindItem \= null %ie an item was created by the charge 
+            then {PlayerRadio PlayerList sayCharge(ID KindItem)}
+        else 
+        end 
+
     end
 
     
