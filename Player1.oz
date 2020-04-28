@@ -147,15 +147,16 @@ end
 %%%%%%%%%%%%%%%%%%%%%
 
 fun {InitState} 
-    state(position:StartPosition turnSurface:Input.turnSurface)
+    state(position:StartPosition turnSurface:Input.turnSurface life:Input.MaxDamage)
 end
 
 %%%%%%%%%%%%%%%%%%%%%
 
 fun {UpdateState Arg L State}
    case Arg#L of (H1|T1)#(H2|T2)then 
-            case H1 of position then {UpdateState T1 T2 state(position:H2 turnSurface:State.turnSurface)} 
-            [] turnSurface then {UpdateState T1 T2 state(position:State.position turnSurface:H2)} end
+            case H1 of position then {UpdateState T1 T2 state(position:H2 turnSurface:State.turnSurface life:State.life)} 
+            [] turnSurface then {UpdateState T1 T2 state(position:State.position turnSurface:H2 life:State.life)} end
+            []chargeItem
         [] nil#nil then State end 
 end
 
@@ -178,6 +179,56 @@ end
               {TreatStream T {UpdateState position|nil Position|nil State}}    
             end
         [] dive|T then {System.show ' go go go dive'} {TreatStream T {UpdateState turnSurface|nil 0|nil State}}
+       
+       [] chargeItem(ID KindItem)|T then 
+       %TODO select hich item to charge
+
+       []fireItem(ID KindFire)|T then 
+       %TODO select which item to fire 
+
+       []fireMine(ID Mine)|T then 
+       %TODO fire mine (first one on list )
+       
+       [] isDead(Answer)|T then 
+       if State.life > 0 then
+       Answer  = true
+       else 
+       Answer = false
+       end 
+
+       {TreatStream T State}
+       
+       []sayMove(ID Direction)|T then
+       %TODO  action based on movement 
+       
+       []saySurface(ID)|T then 
+       %say that player ID has made surface 
+       
+       []sayCharge(ID KindItem)|T then 
+       %
+       
+       []sayMinePlaced(ID)|T then 
+       
+       []sayMissileExplode(ID Position Message)|T then 
+       
+       
+       []sayMineExplode(ID Position Message)|T then 
+       
+       []sayPassingDrone(Drone ID Answer)|T then 
+       
+       []sayAnswerDrone(Drone ID Answer)|T then 
+       
+       []sayPassingSonar(ID Answer)|T then 
+       
+       []sayAnswerSonar(ID Answer)|T then 
+       
+       []sayDeath(ID)|T then 
+       %informative message of ID's death 
+       
+       []sayDamageTaken(ID Damage LifeLeft)|T then 
+       
+       
+       
        end 
     end
 

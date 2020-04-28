@@ -304,7 +304,7 @@ in
     
 
     %%%%%%%%%%%%%%
-    /*fun{MineRecursive State PlayerList Aim ID BasePlayerList} %keep basplayerlist intact for radio function
+    fun{MineRecursive State PlayerList Aim ID BasePlayerList} %keep basplayerlist intact for radio function
         case PlayerList of H|T then 
             Message in
             %Loop through players 
@@ -333,7 +333,7 @@ in
 
 
 
-    end*/
+    end
 
     
     %%%%%%%%%%%%%%
@@ -355,7 +355,7 @@ in
 
 
     %%%%%%%%%%%%%%
-    /*
+    
     proc{PlayerRadio PlayerList Info} %TODO maybe send back acknowledgement with fun instead?
         case PlayerList of H|T then 
             {Send H Info}
@@ -365,7 +365,7 @@ in
         end 
     end
 
-    */
+    
 
 
     %%%%%%%%%%%%%%
