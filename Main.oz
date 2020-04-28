@@ -211,7 +211,7 @@ in
         if Mine == null then skip %no mine exploded 
         else
             {System.show 'Mine:'#Mine}
-            %{MineRecursive State PlayerList pt(x:6 y:6) ID PlayerList } 
+            %{MineRecursive State PlayerList Mine ID PlayerList } 
         end
     end
 
