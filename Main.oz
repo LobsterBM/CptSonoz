@@ -146,6 +146,7 @@ in
         if KindItem \= null %ie an item was created by the charge 
             then {PlayerRadio PlayerList sayCharge(ID KindItem)}
         else 
+            skip
         end 
 
     end
