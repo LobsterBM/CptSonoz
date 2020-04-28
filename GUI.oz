@@ -253,6 +253,7 @@ in
 	end
 
 	proc{TreatStream Stream Grid State}
+		case Stream of H|T then {System.show 'GUI:'#H}end
 		case Stream
 		of nil then skip
 		[] buildWindow|T then NewGrid in 
@@ -274,6 +275,7 @@ in
 		[] removeMine(ID Position)|T then
 			{TreatStream T Grid {StateModification Grid ID State {RemoveMine Position}}}
 		[] surface(ID)|T then
+			{System.show 'GUI: surface'}
 			{TreatStream T Grid {StateModification Grid ID State RemovePath}}
 		[] removePlayer(ID)|T then
 			{TreatStream T Grid {RemovePlayer Grid ID State}}

@@ -19,6 +19,7 @@ define
     IndexToPos
     IsValidPos
     ListPossibleMove
+    CleanPath
    
 
 
@@ -125,11 +126,20 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%
 
+proc {CleanPath Map Min Max}
+   for I in Min..Max do Val in
+      {Array.get Map I Val}
+      if Val==2 then {Array.put Map I 0} end
+   end
+end
+
+%%%%%%%%%%%%%%%%%%%%%
+
 proc {Move ID Position Direction State} Val L in
     ID=MyID
     L={ListPossibleMove State.position MapArray}
     case L of H|T then {Array.put MapArray {PosToIndex H.pos} 2} Position=H.pos Direction=H.dir 
-    [] nil then Direction=dive {System.show 'go surface'} end
+    [] nil then Direction=surface Position=State.position {System.show 'go surface 1'} {CleanPath MapArray 1 100} end
 
     
 end

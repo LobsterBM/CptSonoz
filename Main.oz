@@ -64,7 +64,11 @@ in
 
     proc {Move PlayerState} ID Position Direction in
                 {Send PlayerState.port move(ID Position Direction)}
-                {Send GUIPort movePlayer(ID Position)}
+                if Direction == surface then 
+                    {System.show 'dir=surface'} {Send GUIPort surface(ID)}
+                else 
+                    {Send GUIPort movePlayer(ID Position)}
+                end
     end
 
     %%%%%%%%%%%%%%
