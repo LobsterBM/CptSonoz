@@ -24,6 +24,7 @@ define
     MissileRecursive
     SonarRes
     DroneRes
+    ItemCharge
     
 
     %var
@@ -99,16 +100,16 @@ in
       end
 
     %%%%%%%%%%%%%%
-   /* proc{ItemCharge Player PlayerList }
+    proc{ItemCharge Player PlayerList }
         ID KindItem in 
+        skip
         {Send Player chargeItem(ID KindItem)}
         if KindItem \= null %ie an item was created by the charge 
             then {PlayerRadio PlayerList sayCharge(ID KindItem)}
         else 
             skip
         end 
-
-    end*/
+    end
 
     
     %%%%%%%%%%%%%%
@@ -146,6 +147,7 @@ in
         end
     end
 
+   
     %%%%%%%%%%%%%%
 
     proc {ItemFire State PlayerPortList PlayerPort}
@@ -156,22 +158,23 @@ in
 
         case KindFire of null then skip
         [] mine(Aim) then 
-                        %{PlayerRadio PlayerPortList sayMinePlaced(ID)}
+                        {PlayerRadio PlayerPortList sayMinePlaced(ID)}
                         {Send GUIPort putMine(ID Aim)} 
         [] missile(Aim) then
                         {System.show 'Missile has been fired'} 
                         {MissileExploder State PlayerPortList ID}
         [] sonar(ID) then %% not mandatory , will do if I have time 
-                        /*{Send GUIPort sonar(ID)}*/
+                        {Send GUIPort sonar(ID)}
                         {SonarRes PlayerPortList PlayerPort}
                         
         [] drone(ID Drone) then %% drones only detects players , not mines , uses single line instead of classic sector search
-                        /*{Send GUIPort drone(ID Drone)}*/
+                        {Send GUIPort drone(ID Drone)}
                         {DroneRes PlayerPortList  Drone PlayerPort}
                         
         else {System.show 'message unhandled received (Main,ItemFire)'}
         end
     end
+
 
 
 
@@ -307,6 +310,7 @@ in
             Surface={Move PlayerState} % if the player's at the surface then he moves to his own position
             if Surface==true then S1 
             else 
+                {ItemCharge PlayerState.port PlayerPortList }
                 {ItemFire State PlayerPortList PlayerState.port}
                 {MineExploder State PlayerPortList PlayerState.port}
                 S1

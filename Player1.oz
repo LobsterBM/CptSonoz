@@ -209,22 +209,25 @@ end
             end
         [] dive|T then {System.show ' go go go dive'} {TreatStream T {UpdateState turnSurface|nil 0|nil State}}
         [] chargeItem(ID KindItem)|T then 
-            if State.itemPriority == sonar then
             ID = MyID 
-            if(State.sonarCharge == Input.drone-1) then
-                KindItem = sonar
-                {TreatStream T {UpdateState sonarReady|nil 0|nil State}}
-            else
-                {TreatStream T {UpdateState chargeSonar|nil State.sonarCharge+1|nil State}}
-            end
+            if State.itemPriority == sonar then
+                
+                if(State.sonarCharge == Input.drone-1) then
+                  KindItem = sonar
+                  {TreatStream T {UpdateState sonarReady|nil 0|nil State}}
+                else
+                    KindItem = null
+                    {TreatStream T {UpdateState chargeSonar|nil State.sonarCharge+1|nil State}}
+                end
             
             else 
-                ID = MyID
+      
                 if(State.mineCharge == Input.mine-1) then 
                     KindItem = mine(State.mine)
                     {TreatStream T {UpdateState mineReady|nil 0|nil State}}
 
                 else
+                    KindItem = null
                     {TreatStream T {UpdateState chargeMine|nil State.mineCharge+1|nil State}}
                 end
             end
@@ -388,7 +391,7 @@ end
        %informative message of ID's death 
        {TreatStream T State}  
        
-       []sayDamageTaken(ID Damage LifeLeft)|T then 
+       [] sayDamageTaken(ID Damage LifeLeft)|T then 
        {TreatStream T State}  
        
        
