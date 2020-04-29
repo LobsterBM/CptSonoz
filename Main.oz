@@ -11,6 +11,7 @@ define
     InitPlayerPortList
     InitState
     MainLoop
+    MainLoopSim
     CheckDive
     UpdateState
     Move
@@ -21,6 +22,8 @@ define
     ItemFire
     MissileExploder
     MissileRecursive
+    SonarRes
+    DroneRes
     
 
     %var
@@ -122,32 +125,33 @@ in
 
     %%%%%%%%%%%%%%
 
-    /*proc{SonarRes PlayerList Sonar Sender } %TODO : not sure if sonar is it's own type like drone 
+    proc{SonarRes  PlayerPortList PlayerPort} %TODO : not sure if sonar is it's own type like drone 
     ID Answer in
-        case PlayerList of H|T then 
+        case PlayerPortList of H|T then 
             {Send H sayPassingSonar(ID Answer)}
-            {Send Player sayAnswerSonar(ID Answer)}
-            {SonarRes T Sonar Sender }
+            {Send PlayerPort sayAnswerSonar(ID Answer)}
+            {SonarRes T PlayerPort }
         [] nil then skip end
-    end */
+    end 
 
 
     %%%%%%%%%%%%%%
-    /*proc{DroneRes PlayerList Drone Sender } %% sender is the player that launched drone 
+    proc{DroneRes PlayerPortList Drone PlayerPort } %% sender is the player that launched drone 
     ID Answer in
-        case PlayerList of H|T then
+        case PlayerPortList of H|T then
         {Send H sayPassingDrone(Drone ID Answer)} %checks only one point ?
-        {Send Sender sayAnswerDrone(Drone ID Answer)}
-        {DroneRes T Drone Sender}
+        {Send PlayerPort sayAnswerDrone(Drone ID Answer)}
+        {DroneRes T Drone PlayerPort}
         []nil then skip 
         end
-    end*/
+    end
 
     %%%%%%%%%%%%%%
 
     proc {ItemFire State PlayerPortList PlayerPort}
         ID KindFire 
     in
+        {System.show 'firing phase' }
         {Send PlayerPort fireItem(ID KindFire)}
 
         case KindFire of null then skip
@@ -158,13 +162,13 @@ in
                         {System.show 'Missile has been fired'} 
                         {MissileExploder State PlayerPortList ID}
         [] sonar(ID) then %% not mandatory , will do if I have time 
-                        /*{Send GUIPort sonar(ID)}
-                        {SonarRes PlayerList ID Player}*/
-                        skip
+                        /*{Send GUIPort sonar(ID)}*/
+                        {SonarRes PlayerPortList PlayerPort}
+                        
         [] drone(ID Drone) then %% drones only detects players , not mines , uses single line instead of classic sector search
-                        /*{Send GUIPort drone(ID Drone)}
-                        {DroneRes PlayerList Drone Player}*/
-                        skip
+                        /*{Send GUIPort drone(ID Drone)}*/
+                        {DroneRes PlayerPortList  Drone PlayerPort}
+                        
         else {System.show 'message unhandled received (Main,ItemFire)'}
         end
     end
@@ -295,6 +299,10 @@ in
     proc {MainLoop State} NewState NewPlayerList
 
         fun {Turn PlayerState} Surface S1 S2 in
+
+            {System.show 'starting turn'}
+            %{ItemFire State PlayerPortList PlayerState.port}
+
             S1={CheckDive PlayerState}
             Surface={Move PlayerState} % if the player's at the surface then he moves to his own position
             if Surface==true then S1 
@@ -313,7 +321,7 @@ in
 
     
     in 
-        {System.show 'turn:'#State.turn} 
+        {System.show 'starting turn:'#State.turn} 
         
         {Delay 1000}
         NewPlayerList = {Sub State.playerStateList}
