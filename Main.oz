@@ -25,6 +25,7 @@ define
     SonarRes
     DroneRes
     ItemCharge
+    MainLoopThread
     
 
     %var
@@ -319,7 +320,7 @@ in
 
         fun {Sub L}
             case L of H|T then 
-                {Turn H}|{Sub T}
+                 {Turn H} |{Sub T}
             [] nil then nil end
         end
 
@@ -331,6 +332,40 @@ in
         NewPlayerList = {Sub State.playerStateList}
         NewState = {UpdateState playerStateList|nil NewPlayerList|nil State}
         {MainLoop {UpdateState turn|nil NewState.turn+1|nil NewState}}
+    end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    proc {MainLoopThread State} NewState NewPlayerList
+
+        fun {Turn PlayerState} Surface S1 S2 in
+
+            {System.show 'starting turn'}
+            %{ItemFire State PlayerPortList PlayerState.port}
+
+            S1={CheckDive PlayerState}
+            Surface={Move PlayerState} % if the player's at the surface then he moves to his own position
+            if Surface==true then S1 
+            else 
+                {ItemCharge PlayerState.port PlayerPortList }
+                {ItemFire State PlayerPortList PlayerState.port}
+                {MineExploder State PlayerPortList PlayerState.port}
+                S1
+            end
+        end
+
+        fun {Sub L}
+            case L of H|T then 
+                 thread {Turn H} end |{Sub T}
+            [] nil then nil end
+        end
+
+    
+    in 
+        {System.show 'starting turn:'#State.turn} 
+        
+        {Delay 1000}
+        NewPlayerList = {Sub State.playerStateList}
+        NewState = {UpdateState playerStateList|nil NewPlayerList|nil State}
+        {MainLoopThread {UpdateState turn|nil NewState.turn+1|nil NewState}}
     end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -351,8 +386,11 @@ in
     {System.show 'GUI should be ready at this point'}
 
     %launch the game
-    {MainLoop {InitState PlayerPortList}}
-
+    if Input.isTurnByTurn==true then
+        {MainLoop {InitState PlayerPortList}}
+    else 
+        {MainLoopThread {InitState PlayerPortList}}
+    end
 
 
 end
