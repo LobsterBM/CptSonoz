@@ -181,7 +181,9 @@ end
         [] sayMineExplode(ID Position Message)|T then 
             Message=null 
             {System.show 'Player 2:Mine explode'} {TreatStream T State}
+        [] sayMissileExplode(ID Aim Message)|T then Message=null {TreatStream T State}
         [] fireMine(ID Mine)|T then ID=MyID Mine=null  {TreatStream T State}
+        [] fireItem(ID KindFire)|T then ID=MyID KindFire=null {System.show 'player 2 has not fired a missile'} {TreatStream T State}
         [] A|T then {System.show 'unhandled msg received:'#A}  {TreatStream T State}
        end 
     end

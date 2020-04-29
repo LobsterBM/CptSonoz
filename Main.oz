@@ -18,6 +18,9 @@ define
     MineRecursive
     PlayerRadio
     Delete
+    ItemFire
+    MissileExploder
+    MissileRecursive
     
 
     %var
@@ -142,98 +145,73 @@ in
 
     %%%%%%%%%%%%%%
 
-    /*fun{ItemFire State PlayerList Player}
-    ID KindFire in
-    {Send Player fireItem(ID KindFire)}
+    proc {ItemFire State PlayerList PlayerPort}
+        ID KindFire 
+    in
+        {Send PlayerPort fireItem(ID KindFire)}
 
-            if ID == null then 
-                State
-            else
-                
-                case Type of 
-                    mine(Aim) then % oops , Pos was already taken
-                        %ID Mine in
+        case KindFire of null then skip
+        [] mine(Aim) then % oops , Pos was already taken
+                       /* %ID Mine in
                         %{Send H fireMine(ID Mine)} 
                         %% pas clair si fireMine est appelé pendant la phase fire ou explode ou les deux ? 
                         %if Mine == null then 
                         {PlayerRadio PlayerList sayMinePlaced(ID)}
                         {Send GUIPort putMine(ID Aim)} %% pour l'affichage graphique 
-                        State
-                        %not sure if state need to be updated 
-                        %% keep record of mines placed on array ? 
 
-                    [] missile(Aim) then
-                        {MissileExploder State PlayerList Player}
-                        %maybe send newState?
-                    [] sonar(ID) then %% not mandatory , will do if I have time 
-                        {Send GUIPort sonar(ID)}
-                        {SonarRes PlayerList ID Player}
-                        %TODO state ?
+                        %% keep record of mines placed on array ? */
+                        skip
 
-
-
-                    [] drone(ID Drone) then %% drones only detects players , not mines , uses single line instead of classic sector search
-                        {Send GUIPort drone(ID Drone)}
-                        {DroneRes PlayerList Drone Player}
-                        %TODO state? 
-
-                    else null then State
-                end
-            end
-
-
-
-
-        else
-            State
+        [] missile(Aim) then
+                        {System.show 'Missile has been fired'} 
+                        {MissileExploder State PlayerList ID}
+        [] sonar(ID) then %% not mandatory , will do if I have time 
+                        /*{Send GUIPort sonar(ID)}
+                        {SonarRes PlayerList ID Player}*/
+                        skip
+        [] drone(ID Drone) then %% drones only detects players , not mines , uses single line instead of classic sector search
+                        /*{Send GUIPort drone(ID Drone)}
+                        {DroneRes PlayerList Drone Player}*/
+                        skip
+        else {System.show 'message unhandled received (Main,ItemFire)'}
         end
-        
-    end*/
+    end
 
 
 
     %%%%%%%%%%%%%%
-    /*fun{MissileRecursive State PlayerList Aim ID BasePlayerList} %keep basplayerlist intact for radio function
-        case PlayerList of H|T then 
-            Message in
+    proc {MissileRecursive PlayerPortList Aim ID} %keep basplayerlist intact for radio function
+        Message 
+    in
+        case PlayerPortList of H|T then 
+           
             %Loop through players 
             {Send H sayMissileExplode(ID Aim Message)}
-            %if Message == null then State
-            case Message of null then State
+
+            case Message of null then skip
                 []sayDeath(ID2) then 
-                    {PlayerRadio BasePlayerList sayDeath(ID2)}
+                    {PlayerRadio PlayerPortList sayDeath(ID2)}
                     {Send GUIPort removePlayer(ID2)}
-                    %% TODO updateState 
-
-
                 []sayDamageTaken(ID2 Damage LifeLeft) then 
-                {PlayerRadio BasePlayerList sayDamandeTaken(ID2 Damage LifeLeft)}
-                {Send GUIPort lifeUpdate(ID2 LifeLeft)}
-                %TODO updatestate 
-
+                    {PlayerRadio PlayerPortList sayDamandeTaken(ID2 Damage LifeLeft)}
+                    {Send GUIPort lifeUpdate(ID2 LifeLeft)}
                 end
 
-            {MissileRecursive State T Aim ID BasePlayerList} %TODO  use new state variable after updating 
-
-
-            end
-
-            {Send GUIPort removeMine(ID Aim )}
-
-
-
+            {MissileRecursive T Aim ID} 
+        [] nil then skip 
+        end
     end
-    */
+    
     
     %%%%%%%%%%%%%%
     
-
-    /*fun{MissileExploder State PlayerList  Player}
-    ID Mine in
-        MissileState = {MissileRecursive State PlayerList Missile }
-        MissileState
+    
+    proc {MissileExploder State PlayerPortList  ID}
+        ID Missile
+    in
+         {MissileRecursive  PlayerPortList Missile ID}
     end
-    */
+    
 
 
     
@@ -276,7 +254,6 @@ in
         {Send PlayerPort fireMine(ID Mine)}
         if Mine == null then skip %no mine exploded 
         else
-            {System.show 'Mine:'#Mine}
             {MineRecursive State PlayerList Mine ID PlayerList } 
         end
     end
@@ -330,6 +307,7 @@ in
             Surface={Move PlayerState} % if the player's at the surface then he moves to his own position
             if Surface==true then S1 
             else 
+                {ItemFire State PlayerPortList PlayerState.port}
                 {MineExploder State PlayerPortList PlayerState.port}
                 S1
             end
