@@ -145,26 +145,18 @@ in
 
     %%%%%%%%%%%%%%
 
-    proc {ItemFire State PlayerList PlayerPort}
+    proc {ItemFire State PlayerPortList PlayerPort}
         ID KindFire 
     in
         {Send PlayerPort fireItem(ID KindFire)}
 
         case KindFire of null then skip
-        [] mine(Aim) then % oops , Pos was already taken
-                       /* %ID Mine in
-                        %{Send H fireMine(ID Mine)} 
-                        %% pas clair si fireMine est appelé pendant la phase fire ou explode ou les deux ? 
-                        %if Mine == null then 
-                        {PlayerRadio PlayerList sayMinePlaced(ID)}
-                        {Send GUIPort putMine(ID Aim)} %% pour l'affichage graphique 
-
-                        %% keep record of mines placed on array ? */
-                        skip
-
+        [] mine(Aim) then 
+                        {PlayerRadio PlayerPortList sayMinePlaced(ID)}
+                        {Send GUIPort putMine(ID Aim)} 
         [] missile(Aim) then
                         {System.show 'Missile has been fired'} 
-                        {MissileExploder State PlayerList ID}
+                        {MissileExploder State PlayerPortList ID}
         [] sonar(ID) then %% not mandatory , will do if I have time 
                         /*{Send GUIPort sonar(ID)}
                         {SonarRes PlayerList ID Player}*/
@@ -209,7 +201,7 @@ in
     proc {MissileExploder State PlayerPortList  ID}
         ID Missile
     in
-         {MissileRecursive  PlayerPortList Missile ID}
+         {MissileRecursive PlayerPortList Missile ID}
     end
     
 

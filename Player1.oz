@@ -185,7 +185,7 @@ end
             Message=sayDamageTaken(MyID 1 3)
             {TreatStream T State}
         [] fireMine(ID Mine)|T then ID=MyID Mine=pt(x:6 y:5) {System.show 'player1 has explode a mine'}  {TreatStream T State}
-        [] fireItem(ID KindFire)|T then ID=MyID KindFire=missile(pt(x:6 y:7)) {System.show 'player 1 has fired a missile'} {TreatStream T State}
+        [] fireItem(ID KindFire)|T then ID=MyID KindFire=mine(pt(x:6 y:7)) {System.show 'player 1 has planted a mine'} {TreatStream T State}
         [] A|T then {System.show 'unhandled msg received:'#A}  {TreatStream T State}
        end 
     end
