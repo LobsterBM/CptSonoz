@@ -88,7 +88,7 @@ in
     %%%%%%%%%%%%%%
 
       fun {CheckDive PlayerState}
-        if PlayerState.isSurface==true andthen PlayerState.turnSurface==0 then 
+        if PlayerState.isSurface==true andthen PlayerState.turnSurface==1 then 
                     {System.show 'sub dive'}
                     {Send PlayerState.port dive}
                    playerState(isSurface:false turnSurface:0 isDead:PlayerState.isDead port:PlayerState.port)

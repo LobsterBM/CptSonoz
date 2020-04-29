@@ -141,7 +141,7 @@ proc {Move ID Position Direction State} Val L in
     ID=MyID
     L={ListPossibleMove State.position MapArray}
     case L of H|T then {Array.put MapArray {PosToIndex H.pos} 2} Position=H.pos Direction=H.dir 
-    [] nil then Direction=surface Position=State.position {System.show 'go surface 1'} {CleanPath MapArray 1 100} end
+    [] nil then Direction=surface Position=State.position {System.show 'go surface 1'} {CleanPath MapArray 1 Input.nColumn*Input.nRow} end
 
     
 end
@@ -403,7 +403,7 @@ end
         Port
     in
         {NewPort Stream Port}
-        MapArray={ConvertMapToArray Input.map 10 10}
+        MapArray={ConvertMapToArray Input.map Input.nColumn Input.nRow}
         MyColor=Color
         MyID=id(id:ID color:MyColor name:'player1')
         StartPosition=pt(x:1 y:7)
