@@ -149,40 +149,40 @@ end
 %%%%%%%%%%%%%%%%%%%%%
 
 fun {InitState} 
-    state(position:StartPosition turnSurface:Input.turnSurface life:Input.maxDamage sonarCharge:0 mineCharge:0 itemPriority:sonar sonar:false mine:false target:none)
+    state(position:StartPosition turnSurface:Input.turnSurface life:Input.maxDamage sonarCharge:0 mineCharge:0 itemPriority:sonar sonar:false mine:pt(x:5 y:4) target:pt(x:1 y:7))
 end
 
 %%%%%%%%%%%%%%%%%%%%%
 
 fun {UpdateState Arg L State}
    case Arg#L of (H1|T1)#(H2|T2)then 
-            case H1 of position then {UpdateState T1 T2 state(position:H2 turnSurface:State.turnSurface life:State.life sonarCharge:State.sonarCharge mineCharge:State.mineCharge itemPriority:State.itemPriority sonar:State.sonar mine:false target:State.target )}
-            [] turnSurface then {UpdateState T1 T2 state(position:State.position turnSurface:H2 life:State.life sonarCharge:State.sonarCharge mineCharge:State.mineCharge itemPriority:State.itemPriority sonar:State.sonar mine:false target:State.target )}
+            case H1 of position then {UpdateState T1 T2 state(position:H2 turnSurface:State.turnSurface life:State.life sonarCharge:State.sonarCharge mineCharge:State.mineCharge itemPriority:State.itemPriority sonar:State.sonar mine:State.mine target:State.target )}
+            [] turnSurface then {UpdateState T1 T2 state(position:State.position turnSurface:H2 life:State.life sonarCharge:State.sonarCharge mineCharge:State.mineCharge itemPriority:State.itemPriority sonar:State.sonar mine:State.mine target:State.target )}
             []sonarReady then {UpdateState T1 T2 state(position:State.position turnSurface:State.turnSurface life:State.life sonarCharge:0 mineCharge:State.mineCharge itemPriority:mine sonar:true mine:State.mine target:State.target )}
             []chargeSonar then {UpdateState T1 T2 state(position:State.position turnSurface:State.turnSurface life:State.life sonarCharge:State.sonarCharge+1 mineCharge:State.mineCharge itemPriority:State.itemPriority sonar:State.sonar mine:State.mine target:State.target )} 
-            []mineReady then {UpdateState T1 T2 state(position:State.position turnSurface:State.turnSurface life:State.life sonarCharge:State.sonarCharge mineCharge:0 itemPriority:sonar sonar:State.mine mine:State.target target:State.target )}
+            []mineReady then {UpdateState T1 T2 state(position:State.position turnSurface:State.turnSurface life:State.life sonarCharge:State.sonarCharge mineCharge:0 itemPriority:sonar sonar:State.sonar mine:State.target target:State.target )}
             []chargeMine then {UpdateState T1 T2 state(position:State.position turnSurface:State.turnSurface life:State.life sonarCharge:State.sonarCharge mineCharge:State.mineCharge+1 itemPriority:State.itemPriority sonar:State.sonar mine:State.mine  target:State.target)}
             []sonarFired then {UpdateState T1 T2 state(position:State.position turnSurface:State.turnSurface life:State.life sonarCharge:State.sonarCharge mineCharge:State.mineCharge itemPriority:State.itemPriority sonar:false mine:State.mine target:State.target )}
             []mineFired then {UpdateState T1 T2 state(position:State.position turnSurface:State.turnSurface life:State.life sonarCharge:State.sonarCharge mineCharge:State.mineCharge itemPriority:State.itemPriority sonar:State.sonar mine:H2 target:State.target )}
             [] life then {UpdateState T1 T2 state(position:State.position turnSurface:State.turnSurface life:H2 sonarCharge:State.sonarCharge mineCharge:State.mineCharge itemPriority:State.itemPriority sonar:State.sonar mine:State.mine target:State.target)} 
             []newTarget then {UpdateState T1 T2 state(position:State.position turnSurface:State.turnSurface life:State.life sonarCharge:State.sonarCharge mineCharge:State.mineCharge itemPriority:State.itemPriority sonar:State.sonar mine:State.mine target:H2 )} 
-            []removeMine then {UpdateState T1 T2 state(position:State.position turnSurface:State.turnSurface life:State.life sonarCharge:State.sonarCharge mineCharge:State.mineCharge itemPriority:State.itemPriority sonar:State.sonar mine:false target:State.target )} 
+            []removeMine then {UpdateState T1 T2 state(position:State.position turnSurface:State.turnSurface life:State.life sonarCharge:State.sonarCharge mineCharge:State.mineCharge itemPriority:State.itemPriority sonar:State.sonar mine:State.mine target:State.target )} 
             []setMine then {UpdateState T1 T2 state(position:State.position turnSurface:State.turnSurface life:State.life sonarCharge:State.sonarCharge mineCharge:State.mineCharge itemPriority:State.itemPriority sonar:State.sonar mine:State.target target:State.target )} 
-            []nil#nil then State 
-        end 
-        end
-    
+            end
+      [] nil#nil then State 
+      end
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%
 
 
 fun{ManDistance Pos1 Pos2}
-Res Res1 Res2 in
-{Number.abs (Pos1.x - Pos2.x) Res1}
-{Number.abs (Pos1.y - Pos2.y) Res2}
-Res = Res1 + Res2 
-Res
+  Res Res1 Res2 
+in
+  {Number.abs (Pos1.x - Pos2.x) Res1}
+  {Number.abs (Pos1.y - Pos2.y) Res2}
+  Res = Res1 + Res2 
+  Res
 end
 
 
@@ -196,7 +196,7 @@ end
             {InitPosition ID Position}
             {TreatStream T State} % pas de changement de State pcq il est déjà initialisé
         [] move(ID Position Direction)|T then 
-            {System.show 'player1 did move. turnSurface:'#State.turnSurface}
+            {System.show 'player2 did move. turnSurface:'#State.turnSurface}
             if State.turnSurface>0 then 
               ID=MyID
               Direction=idle
@@ -208,10 +208,9 @@ end
               {TreatStream T {UpdateState position|nil Position|nil State}}    
             end
         [] dive|T then {System.show ' go go go dive'} {TreatStream T {UpdateState turnSurface|nil 0|nil State}}
-       
         [] chargeItem(ID KindItem)|T then 
-        if State.itemPriority == sonar then
-            ID =MyID
+            if State.itemPriority == sonar then
+            ID = MyID 
             if(State.sonarCharge == Input.drone-1) then
                 KindItem = sonar
                 {TreatStream T {UpdateState sonarReady|nil 0|nil State}}
@@ -228,55 +227,57 @@ end
                 else
                     {TreatStream T {UpdateState chargeMine|nil State.mineCharge+1|nil State}}
                 end
-        end
-
+            end
         []fireItem(ID KindFire)|T then 
-        ID = MyID
-        KindFire=sonar(ID)
-        {System.show 'sonar fired'}
-        {TreatStream T State }
+            ID = MyID
             if State.sonar == true then 
-                KindFire = sonar
+                KindFire = sonar(ID)
                 {TreatStream T {UpdateState sonarFired|nil 0|nil State}}
 
             elseif State.mine \= false then
                     MineDistance
                 in
                     MineDistance = {ManDistance State.position State.target}
-                    ID= MyID
+                  
                     if  {And (MineDistance =< Input.maxDistanceMine) (MineDistance >= Input.minDistanceMine)} then
                         
                         KindFire = mine(State.target)
                         {TreatStream T {UpdateState setMine|nil 0|nil State}}
                     else
+                        KindFire=null
                         {TreatStream T State }
                     end
             else 
+                KindFire=null
                 {TreatStream T State }
             end
 
 
         []fireMine(ID Mine)|T then 
-               
+                MineDistance
+        in
+         
             ID= MyID
-                if {And (State.mine \= true)  (State.mine \= false)}then 
-                    Mine = mien(State.mine)
+            if State.mine \= false then 
+                    Mine = mine(State.mine)
                     {TreatStream T {UpdateState removeMine|nil 0|nil State}}
-                else
                     {TreatStream T State }
-                end
-        
-    
-       
-       [] isDead(Answer)|T then 
-       if State.life > 0 then
-       Answer  = true
-       else 
-       Answer = false
-       end 
+            else
+                Mine=null
+                {TreatStream T State }
+            end
+      
+  
 
-       {TreatStream T State}
-       
+        [] isDead(Answer)|T then 
+          if State.life > 0 then
+            Answer=true
+          else 
+            Answer=false
+          end
+          {TreatStream T State}
+      
+
        []sayMove(ID Direction)|T then
        {TreatStream T State}  
        
@@ -320,8 +321,9 @@ end
        []sayMineExplode(ID Position Message)|T then 
            Explosion
        in
-       Explosion = {ManDistance Position State.position}
+       Explosion = {ManDistance Position.1 State.position}
        if Explosion > 1 then
+            Message=null
             {TreatStream T State}
         elseif Explosion == 1 then
             if State.life < 2 then
@@ -347,7 +349,7 @@ end
        %check position
        []sayPassingDrone(Drone ID Answer)|T then 
     
-       ID = MyID
+       ID = MyID 
        case Drone of drone(row X) then
         if(X == State.position.x ) then
             Answer =true 
@@ -388,8 +390,6 @@ end
        
        []sayDamageTaken(ID Damage LifeLeft)|T then 
        {TreatStream T State}  
-       else 
-       {TreatStream Stream State}  
        
        
        end 
@@ -402,8 +402,8 @@ end
         {NewPort Stream Port}
         MapArray={ConvertMapToArray Input.map 10 10}
         MyColor=Color
-        MyID=id(id:ID color:MyColor name:'player1')
-        StartPosition=pt(x:1 y:3)
+        MyID=id(id:ID color:MyColor name:'player2')
+        StartPosition=pt(x:1 y:7)
         {System.show MyID}
         thread
             {TreatStream Stream {InitState}}

@@ -189,7 +189,7 @@ in
                     {PlayerRadio PlayerPortList sayDeath(ID2)}
                     {Send GUIPort removePlayer(ID2)}
                 []sayDamageTaken(ID2 Damage LifeLeft) then 
-                    {PlayerRadio PlayerPortList sayDamandeTaken(ID2 Damage LifeLeft)}
+                    {PlayerRadio PlayerPortList sayDamageTaken(ID2 Damage LifeLeft)}
                     {Send GUIPort lifeUpdate(ID2 LifeLeft)}
                 end
 
@@ -227,7 +227,7 @@ in
                     {PlayerRadio BasePlayerList sayDeath(ID2)}
                     {Send GUIPort removePlayer(ID2)}
                 []sayDamageTaken(ID2 Damage LifeLeft) then 
-                    {PlayerRadio BasePlayerList sayDamandeTaken(ID2 Damage LifeLeft)}
+                    {PlayerRadio BasePlayerList sayDamageTaken(ID2 Damage LifeLeft)}
                     {Send GUIPort lifeUpdate(ID2 LifeLeft)}
                 else {System.show 'Should not appear (MineRecursive)'}
         

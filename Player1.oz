@@ -210,7 +210,7 @@ end
         [] dive|T then {System.show ' go go go dive'} {TreatStream T {UpdateState turnSurface|nil 0|nil State}}
         [] chargeItem(ID KindItem)|T then 
             if State.itemPriority == sonar then
-            ID = State.ID 
+            ID = MyID 
             if(State.sonarCharge == Input.drone-1) then
                 KindItem = sonar
                 {TreatStream T {UpdateState sonarReady|nil 0|nil State}}
@@ -219,7 +219,7 @@ end
             end
             
             else 
-                ID = State.id
+                ID = MyID
                 if(State.mineCharge == Input.mine-1) then 
                     KindItem = mine(State.mine)
                     {TreatStream T {UpdateState mineReady|nil 0|nil State}}
@@ -231,7 +231,7 @@ end
         []fireItem(ID KindFire)|T then 
             ID = MyID
             if State.sonar == true then 
-                KindFire = sonar
+                KindFire = sonar(ID)
                 {TreatStream T {UpdateState sonarFired|nil 0|nil State}}
 
             elseif State.mine \= false then
@@ -300,19 +300,19 @@ end
         elseif Explosion == 1 then
             if State.life < 2 then
              %say death
-             Message= sayDeath(State.id)
+             Message= sayDeath(MyID)
              {TreatStream T {UpdateState life|nil 0|nil State}}
              else
-             Message= sayDamageTaken(State.id 1 State.life-1)
+             Message= sayDamageTaken(MyID 1 State.life-1)
              {TreatStream T {UpdateState life|nil State.life-1|nil State}}
              end
         else 
             if State.life < 3 then
              %say death
-             Message= sayDeath(State.id)
+             Message= sayDeath(MyID)
              {TreatStream T {UpdateState life|nil 0|nil State}}
              else
-             Message= sayDamageTaken(State.id 2 State.life-2)
+             Message= sayDamageTaken(MyID 2 State.life-2)
              {TreatStream T {UpdateState life|nil State.life-2|nil State}}
              end
         end
@@ -328,19 +328,19 @@ end
         elseif Explosion == 1 then
             if State.life < 2 then
              %say death
-             Message= sayDeath(State.id)
+             Message= sayDeath(MyID)
              {TreatStream T {UpdateState life|nil 0|nil State}}
              else
-             Message= sayDamageTaken(State.id 1 State.life-1)
+             Message= sayDamageTaken(MyID 1 State.life-1)
              {TreatStream T {UpdateState life|nil State.life-1|nil State}}
              end
         else 
             if State.life < 3 then
              %say death
-             Message= sayDeath(State.id)
+             Message= sayDeath(MyID)
              {TreatStream T {UpdateState life|nil 0|nil State}}
              else
-             Message= sayDamageTaken(State.id 2 State.life-2)
+             Message= sayDamageTaken(MyID 2 State.life-2)
              {TreatStream T {UpdateState life|nil State.life-2|nil State}}
              end
         end
@@ -349,7 +349,7 @@ end
        %check position
        []sayPassingDrone(Drone ID Answer)|T then 
     
-       ID = State.id 
+       ID = MyID 
        case Drone of drone(row X) then
         if(X == State.position.x ) then
             Answer =true 
@@ -372,12 +372,12 @@ end
        []sayAnswerDrone(Drone ID Answer)|T then 
         {TreatStream T State}
        []sayPassingSonar(ID Answer)|T then 
-       ID= State.id
+       ID= MyID
        Answer = pt(x:State.position.x  y:State.position.x)
        {TreatStream T State}  
 
        []sayAnswerSonar(ID Answer)|T then 
-       if (ID \= State.id) then %tant que cest pas le joueur meme 
+       if (ID \= MyID) then %tant que cest pas le joueur meme 
         {TreatStream T {UpdateState newTarget|nil Answer|nil State}}
        else
        {TreatStream T State}  
