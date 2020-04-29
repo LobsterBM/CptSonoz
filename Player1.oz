@@ -222,7 +222,6 @@ end
                 ID = State.id
                 if(State.mineCharge == Input.mine-1) then 
                     KindItem = mine(State.mine)
-                    %TODO add position for mine 
                     {TreatStream T {UpdateState mineReady|nil 0|nil State}}
 
                 else
