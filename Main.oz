@@ -152,7 +152,7 @@ in
 
         case KindFire of null then skip
         [] mine(Aim) then 
-                        {PlayerRadio PlayerPortList sayMinePlaced(ID)}
+                        %{PlayerRadio PlayerPortList sayMinePlaced(ID)}
                         {Send GUIPort putMine(ID Aim)} 
         [] missile(Aim) then
                         {System.show 'Missile has been fired'} 
