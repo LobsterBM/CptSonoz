@@ -179,11 +179,10 @@ end
             end
         [] dive|T then {System.show ' go go go dive'} {TreatStream T {UpdateState turnSurface|nil 0|nil State}}
         [] sayMineExplode(ID Position Message)|T then 
-            Message=null 
-            ID=MyID 
-            Position=null
+            Message=sayDeath(MyID)  
             {System.show 'Player 1:Mine explode'} {TreatStream T State}
         [] fireMine(ID Mine)|T then ID=MyID Mine=pt(x:6 y:5) {System.show 'player1 has explode a mine'}  {TreatStream T State}
+        [] A|T then {System.show 'unhandled msg received:'#A}  {TreatStream T State}
        end 
     end
 

@@ -107,9 +107,7 @@ in
     
     %%%%%%%%%%%%%%
 
-   % proc{SonarRes PlayerList  }
-   %%%%%%%%%%%%%%
-    
+
     fun {Delete L I}
         case L of H|T then
             if I==0 then T
@@ -118,6 +116,18 @@ in
             {System.show 'Should not appear (Delete)'}
        end   
     end
+
+    %%%%%%%%%%%%%%
+
+    /*proc{SonarRes PlayerList Sonar Sender } %TODO : not sure if sonar is it's own type like drone 
+    ID Answer in
+        case PlayerList of H|T then 
+            {Send H sayPassingSonar(ID Answer)}
+            {Send Player sayAnswerSonar(ID Answer)}
+            {SonarRes T Sonar Sender }
+        [] nil then skip end
+    end */
+
 
     %%%%%%%%%%%%%%
     /*proc{DroneRes PlayerList Drone Sender } %% sender is the player that launched drone 
@@ -132,10 +142,10 @@ in
 
     %%%%%%%%%%%%%%
 
-    /*fun{ItemFire State PlayerList Pos Zero}
-    ID Type
-    case PlayerList of H|T then
-        if Zero == Pos then
+    /*fun{ItemFire State PlayerList Player}
+    ID KindFire in
+    {Send Player fireItem(ID KindFire)}
+
             if ID == null then 
                 State
             else
@@ -153,14 +163,21 @@ in
                         %% keep record of mines placed on array ? 
 
                     [] missile(Aim) then
-                        
+                        {MissileExploder State PlayerList Player}
+                        %maybe send newState?
                     [] sonar(ID) then %% not mandatory , will do if I have time 
+                        {Send GUIPort sonar(ID)}
+                        {SonarRes PlayerList ID Player}
+                        %TODO state ?
+
 
 
                     [] drone(ID Drone) then %% drones only detects players , not mines , uses single line instead of classic sector search
+                        {Send GUIPort drone(ID Drone)}
+                        {DroneRes PlayerList Drone Player}
+                        %TODO state? 
 
-
-                    else nil then State
+                    else null then State
                 end
             end
 
@@ -168,11 +185,58 @@ in
 
 
         else
-            {ItemFire State T Pos Zero+1}
+            State
         end
         
     end*/
 
+
+
+    %%%%%%%%%%%%%%
+    /*fun{MissileRecursive State PlayerList Aim ID BasePlayerList} %keep basplayerlist intact for radio function
+        case PlayerList of H|T then 
+            Message in
+            %Loop through players 
+            {Send H sayMissileExplode(ID Aim Message)}
+            %if Message == null then State
+            case Message of null then State
+                []sayDeath(ID2) then 
+                    {PlayerRadio BasePlayerList sayDeath(ID2)}
+                    {Send GUIPort removePlayer(ID2)}
+                    %% TODO updateState 
+
+
+                []sayDamageTaken(ID2 Damage LifeLeft) then 
+                {PlayerRadio BasePlayerList sayDamandeTaken(ID2 Damage LifeLeft)}
+                {Send GUIPort lifeUpdate(ID2 LifeLeft)}
+                %TODO updatestate 
+
+                end
+
+            {MissileRecursive State T Aim ID BasePlayerList} %TODO  use new state variable after updating 
+
+
+            end
+
+            {Send GUIPort removeMine(ID Aim )}
+
+
+
+    end
+    */
+    
+    %%%%%%%%%%%%%%
+    
+
+    /*fun{MissileExploder State PlayerList  Player}
+    ID Mine in
+        MissileState = {MissileRecursive State PlayerList Missile }
+        MissileState
+    end
+    */
+
+
+    
 
     %%%%%%%%%%%%%%
     proc {MineRecursive State PlayerPortList Position ID BasePlayerList } %keep basplayerlist intact for radio function 
@@ -182,7 +246,7 @@ in
             NewState
             NewList
         in
-            {Send H sayMineExplode(ID Position Message)}
+           {Send H sayMineExplode(ID Position Message)}
             
             case Message of null then skip
                 [] sayDeath(ID2) then 
@@ -191,6 +255,7 @@ in
                 []sayDamageTaken(ID2 Damage LifeLeft) then 
                     {PlayerRadio BasePlayerList sayDamandeTaken(ID2 Damage LifeLeft)}
                     {Send GUIPort lifeUpdate(ID2 LifeLeft)}
+                else {System.show 'Should not appear (MineRecursive)'}
         
             end
 
@@ -203,6 +268,7 @@ in
     
     %%%%%%%%%%%%%%
     
+
     
     proc{MineExploder State PlayerList PlayerPort}
         ID Mine 
@@ -211,7 +277,7 @@ in
         if Mine == null then skip %no mine exploded 
         else
             {System.show 'Mine:'#Mine}
-            %{MineRecursive State PlayerList Mine ID PlayerList } 
+            {MineRecursive State PlayerList Mine ID PlayerList } 
         end
     end
 
